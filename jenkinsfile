@@ -1,0 +1,40 @@
+pipeline {
+  agent any
+
+  environment {
+    IMAGE = "jenkins-python-cicd"
+    CONTAINER = "jenkins-python-cicd"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
+    stage('Test') {
+      steps {
+        sh '''
+          python3 -m venv venv
+          . venv/bin/activate
+          pip install -r requirements.txt
+          pytest -q
+        '''
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        sh 'docker build -t $IMAGE:$BUILD_NUMBER .'
+      }
+    }
+
+    stage('Deploy (Run Container)') {
+      steps {
+        sh '''
+          docker rm -f $CONTAINER || true
+          docker run -d -p 3000:3000 --name $CONTAINER -e BUILD_TAG=$BUILD_TAG $IMAGE:$BUILD_NUMBER
+        '''
+      }
+    }
+  }
+}
