@@ -2,8 +2,8 @@ pipeline {
   agent any
 
   environment {
-    IMAGE = "jenkins-python-cicd"
-    CONTAINER = "jenkins-python-cicd"
+    IMAGE = "jenkins-cicd-python"
+    CONTAINER = "jenkins-cicd-python"
   }
 
   stages {
